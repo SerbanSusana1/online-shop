@@ -11,6 +11,7 @@ public class OnlineShopApplicationTests {
 
 	@Test
 	public void contextLoads() {
+
 	}
 
 }
