@@ -2,6 +2,7 @@ package org.fasttrackit.onlineshop;
 
 import org.assertj.core.internal.bytebuddy.matcher.ElementMatchers;
 import org.fasttrackit.onlineshop.domain.Product;
+import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.service.ProductService;
 import org.fasttrackit.onlineshop.transfer.product.SaveProductRequest;
 import org.junit.Test;
@@ -24,6 +25,40 @@ public class ProductServiceIntergrationTests {
     @Test
      public void testCreateProduct_whenValidRequest_thenReurnCreateProduct(){
 
+        createProduct();
+
+
+    }
+
+
+
+    @Test(expected = TransactionSystemException.class)
+    public void testCreateProduct_whenInvalidRequest_thenThrowException(){
+
+        SaveProductRequest request =new SaveProductRequest();
+        //we're not setting any value reguest,
+        // because we want to send an invalid request
+         productService.createProduct(request);
+    }
+
+    @Test
+    public void testGetProduct_whenExistingProduct_thenReturnProduct(){
+        Product createProduct = createProduct();
+
+        Product retriveProduct = productService.getProduct(createProduct.getId());
+
+        assertThat(retriveProduct, notNullValue());
+        assertThat(retriveProduct.getId(), is(createProduct.getId()));
+        assertThat(retriveProduct.getName(), is(createProduct.getName()));
+
+
+    }
+    @Test(expected = ResourceNotFoundException.class)
+    public  void testGetProduct_whenNotExistingEntity_thenThrowNotFoundException(){
+        productService.getProduct(999999);
+
+    }
+    private Product createProduct() {
         SaveProductRequest request = new SaveProductRequest();
         request.setName("Computer");
         request.setDescription("Some description");
@@ -40,16 +75,7 @@ public class ProductServiceIntergrationTests {
         assertThat(product.getPrice(), is(request.getPrice()));
         assertThat(product.getQuantity(), is(request.getQuantity()));
 
-
-
-    }
-    @Test(expected = TransactionSystemException.class)
-    public void testCreateProduct_whenInvalidRequest_thenThrowException(){
-
-        SaveProductRequest request =new SaveProductRequest();
-        //we're not setting any value reguest,
-        // because we want to send an invalid request
-         productService.createProduct(request);
+        return product;
     }
 
 }
