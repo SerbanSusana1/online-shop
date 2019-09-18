@@ -58,6 +58,28 @@ public class ProductServiceIntergrationTests {
         productService.getProduct(999999);
 
     }
+    @Test
+    public  void testUpdateProduct_whenValidRequest_thenReturnUpdatedProduct(){
+
+        Product  createProduct = createProduct();
+        SaveProductRequest request = new SaveProductRequest();
+        request.setName(createProduct.getName()+ "Update");
+        request.setPrice(createProduct.getPrice()+10);
+        request.setQuantity(createProduct.getQuantity()+10);
+
+        Product updateProduct = productService.updateProduct(createProduct.getId(), request);
+
+        assertThat(updateProduct,notNullValue());
+        assertThat(updateProduct.getId(),is(createProduct.getId()));
+        assertThat(updateProduct.getName(),is(request.getName()));
+        assertThat(updateProduct.getPrice(),is(request.getPrice()));
+        assertThat(updateProduct.getQuantity(),is(request.getQuantity()));
+
+
+    }
+
+
+
     private Product createProduct() {
         SaveProductRequest request = new SaveProductRequest();
         request.setName("Computer");
