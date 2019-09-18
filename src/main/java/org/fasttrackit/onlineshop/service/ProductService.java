@@ -3,11 +3,14 @@ package org.fasttrackit.onlineshop.service;
 import org.fasttrackit.onlineshop.domain.Product;
 import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.persistance.ProductRepository;
+import org.fasttrackit.onlineshop.transfer.product.GetProductRequest;
 import org.fasttrackit.onlineshop.transfer.product.SaveProductRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,6 +47,24 @@ public class ProductService {
                //lambda expresions
                .orElseThrow(()->
                        new ResourceNotFoundException("Product" + id + "not found."));
+
+
+    }
+
+
+    public Page<Product> getProducts(GetProductRequest request, Pageable pageable){
+        LOGGER.info("Retrieving products: {}", request);
+
+        if(request != null && request.getPartialName() != null && request.getMinimumQantity() != null) {
+            return productRepository.findByNameContainingAndQuantityGreaterThanEqual(
+                    request.getPartialName(), request.getMinimumQantity(), pageable
+            );
+
+        }else  if(request != null && request.getPartialName() != null){
+            return  productRepository.findByNameContaining(request.getPartialName(), pageable);
+        }else {
+            return productRepository.findAll(pageable);
+        }
     }
 
     public Product updateProduct(long id, SaveProductRequest request) {
